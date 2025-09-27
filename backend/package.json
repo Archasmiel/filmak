@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "errors": "node scripts/analyzeErrors.js",
+    "errors:today": "node scripts/analyzeErrors.js today",
+    "errors:week": "node scripts/analyzeErrors.js week",
+    "errors:month": "node scripts/analyzeErrors.js month"
   },
   "keywords": [],
   "author": "Archasmiel",
