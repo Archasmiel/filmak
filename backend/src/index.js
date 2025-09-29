@@ -1,19 +1,28 @@
 /**
  * Application entrypoint.
- * Responsibilities:
- *  - Load environment variables
- *  - Configure core middleware (CORS, JSON parsing)
- *  - Register infrastructure middleware (request logging)
- *  - Mount routes
- *  - Register 404 + error handlers (must be last)
+ * - Loads environment variables
+ * - Configures core middleware (CORS, JSON parsing, cookies)
+ * - Registers infrastructure middleware (request logging)
+ * - Mounts routes
+ * - Registers 404 + centralized error handlers (must be last)
+ *
+ * Notes for production:
+ * - Ensure FRONTEND_ORIGIN or similar env is set correctly for CORS.
+ * - Use https + proper cookie settings (secure=true) in production.
+ * - Keep middleware order: logging -> routes -> 404 -> errorHandler
  */
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import process from 'process';
 import logger from './logger/logger.js';
-import requestLogger from './middleware/requestLogger.js';
-import notFoundHandler from './middleware/notFoundHandler.js';
-import errorHandler from './middleware/errorHandler.js';
+import { 
+    requestLogger, 
+    notFoundHandler, 
+    errorHandler 
+} from './middleware/middleware.js';
+import authRoutes from './routes/auth.js';
 
 // .env
 dotenv.config();
@@ -21,19 +30,23 @@ dotenv.config();
 const app = express();
 
 // Core middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // todo: change in production
+  credentials: true
+}));
+app.use(cookieParser());
 app.use(express.json());
 
 // API request logging middleware
 app.use(requestLogger);
 
-// Test route
-app.get('/api/hello', (req, res) => {
-    res.json({ message: "Hello from backend!" });
-});
+// Routes
+app.use('/api/auth', authRoutes);
 
-// 404 (before, for precision) + other error handler
+// 404 handler
 app.use(notFoundHandler);
+
+// Central error handler (last middleware)
 app.use(errorHandler);
 
 const port = process.env.PORT || 5000;

@@ -1,16 +1,17 @@
 /**
  * Error log analyzer.
  * Usage:
- *   node scripts/analyzeErrors.js            (defaults to 'today')
- *   node scripts/analyzeErrors.js today
- *   node scripts/analyzeErrors.js week       (last 7 days including today)
- *   node scripts/analyzeErrors.js month      (last 30 days including today)
+ *  node scripts/analyzeErrors.js            (defaults to 'today')
+ *  node scripts/analyzeErrors.js today
+ *  node scripts/analyzeErrors.js week
+ *  node scripts/analyzeErrors.js month
  *
- * Output: JSON summary to stdout.
+ * Output: JSON summary printed to stdout.
  *
- * Log line assumption:
- *   Starts with: YYYY-MM-DD HH:mm:ss LEVEL ...
- *   Error lines contain: "ERROR"
+ * Notes:
+ * - This script reads backend/logs/error.log and aggregates by day / signature.
+ * - It assumes log lines start with "YYYY-MM-DD HH:mm:ss LEVEL ..."
+ * - For large logs consider streaming rather than reading whole file.
  */
 import fs from 'fs';
 import path from 'path';
@@ -24,25 +25,27 @@ if (!VALID.has(PERIOD)) {
 
 const logFile = path.join(process.cwd(), 'logs', 'error.log');
 if (!fs.existsSync(logFile)) {
-  console.error('No error.log found.');
+  console.error('No error.log found. Run the app and produce errors first.');
   process.exit(1);
 }
 
 const raw = fs.readFileSync(logFile, 'utf8');
 const allLines = raw.split('\n').filter(l => l.trim().length);
 
+// Helper: parse date prefix "YYYY-MM-DD"
 function extractDate(line) {
   return line.slice(0, 10);
 }
 
 const todayISO = new Date().toISOString().slice(0, 10);
 
+// Compute inclusive range
 function computeRange(period) {
   const end = new Date(todayISO);
   let days;
   if (period === 'today') days = 1;
   else if (period === 'week') days = 7;
-  else days = 30; // month
+  else days = 30;
   const start = new Date(end);
   start.setDate(end.getDate() - (days - 1));
   return {
@@ -53,11 +56,11 @@ function computeRange(period) {
 
 const { start, end } = computeRange(PERIOD);
 
-// Date comparison helper (string form works lexicographically for ISO date)
 function inRange(dateStr) {
   return dateStr >= start && dateStr <= end;
 }
 
+// Filter error lines in range
 const errorLines = allLines.filter(l => {
   if (!l.includes('ERROR')) return false;
   const d = extractDate(l);
@@ -75,6 +78,7 @@ if (!errorLines.length) {
   process.exit(0);
 }
 
+// Derive a stable signature: strip timestamp, level, stack and normalize common ids
 function deriveSignature(line) {
   const afterLevel = line.replace(/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+ERROR\s+/, '');
   const withoutStack = afterLevel.split(' stack=')[0];
@@ -84,7 +88,6 @@ function deriveSignature(line) {
     .replace(/\b\d{10,}\b/g, '<num>');
 }
 
-// Aggregations
 const bySignature = {};
 const byDay = {};
 
@@ -106,8 +109,7 @@ const summary = {
   first: errorLines[0],
   last: errorLines[errorLines.length - 1],
   bySignature: Object.fromEntries(
-    Object.entries(bySignature)
-      .sort((a, b) => b[1] - a[1]) // descending count
+    Object.entries(bySignature).sort((a, b) => b[1] - a[1])
   ),
   byDay
 };
