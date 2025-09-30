@@ -7,11 +7,9 @@ COPY . .
 # build assumes "build" script outputs to dist/ (Vite default)
 RUN npm run build
 
-FROM nginx:alpine AS runner
-# Remove default nginx content
+FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
-# Copy built files from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
-# Optional: custom nginx.conf can be added here if needed
+COPY --from=builder /app/build /usr/share/nginx/html
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
