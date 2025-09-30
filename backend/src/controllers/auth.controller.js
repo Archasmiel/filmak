@@ -2,6 +2,7 @@ const authService = require("../services/auth.service");
 
 exports.registerUser = async (req, res) => {
     const { name, email, password } = req.body;
+    console.log("Registration attempt:", email);
 
     if (!name || !email || !password) {
         return res.status(400).json({ error: "Missing required fields." });
@@ -21,6 +22,7 @@ exports.registerUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
+    console.log("Login attempt:", email);
 
     if (!email || !password) {
         return res.status(400).json({ error: "Missing email or password." });
