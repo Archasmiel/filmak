@@ -10,6 +10,7 @@
  */
 import { performance } from 'perf_hooks';
 import { logApiRequest, logError } from '../logger/log-events.js';
+import { verifyAccessToken } from '../auth/tokens.js';
 
 export function requestLogger(req, res, next) {
   const start = performance.now();
@@ -33,17 +34,21 @@ export function errorHandler(err, req, res, next) {
   res.status(err.status || 500).json({ error: 'Internal Server Error' });
 }
 
+/**
+ * Simple bearer-token guard for future protected REST endpoints.
+ * Attaches decoded payload to req.user on success.
+ */
 export function requireAuth(req, res, next) {
-    const auth = req.headers.authorization;
-    if (!auth || !auth.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    const token = auth.slice(7);
-    try {
-        const payload = verifyAccessToken(token);
-        req.user = payload;
-        next();
-    } catch (e) {
-        return res.status(401).json({ error: 'Invalid token' });
-    }
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const token = auth.slice(7);
+  try {
+    const payload = verifyAccessToken(token);
+    req.user = payload;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
 }
