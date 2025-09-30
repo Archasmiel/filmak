@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const db = require("./db");
+const movieService = require("./services/movie.service");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,7 +11,6 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = ["http://localhost:3000"];
 
 app.use(express.json());
-
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -30,7 +30,8 @@ app.use(
 app.use(express.json());
 
 // === Route Definitions ===
-app.use("/api/auth", require("./routes/auth"));
+app.use("/api/auth", require("./routes/auth.route"));
+app.use("/api/movies", require("./routes/movie.route"));
 
 // === Health Check ===
 app.get("/healthz", (req, res) => {
@@ -45,11 +46,13 @@ app.use((err, req, res, next) => {
 
 // === Connect DB & Start Server ===
 db.on("open", () => {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(
       `Server running at http://localhost:${PORT} [${
         process.env.NODE_ENV || "development"
       } mode]`
     );
+
+    await movieService.refreshMovieData();
   });
 });

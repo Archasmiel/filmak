@@ -41,26 +41,53 @@ const db = {
   try {
     console.log("Attempting to create tables...");
     await pool.query(`
-            CREATE TABLE IF NOT EXISTS public.users ( -- <<< ADDED 'public.' here
+            CREATE TABLE IF NOT EXISTS public.users (
                 id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                resetpasswordtoken TEXT,
-                resetpasswordexpires TEXT
+                password TEXT NOT NULL
             );
         `);
     console.log("Users table creation query sent.");
     await pool.query(`
-            CREATE TABLE IF NOT EXISTS public.tasks ( -- <<< ADDED 'public.' here
+        CREATE TABLE IF NOT EXISTS public.movies (
+            id INTEGER PRIMARY KEY,
+            title TEXT NOT NULL,
+            poster_path TEXT,
+            overview TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+    console.log("Movies table creation query sent.");
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS public.movie_reactions (
+            id SERIAL PRIMARY KEY,
+            movie_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            reaction_type INTEGER NOT NULL CHECK (reaction_type IN (1, -1)),
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (movie_id, user_id), 
+
+            FOREIGN KEY (movie_id) REFERENCES public.movies(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE
+        );
+    `);
+    console.log("Movie Reactions table creation query sent.");
+    await pool.query(`
+            CREATE TABLE IF NOT EXISTS public.movie_comments (
                 id SERIAL PRIMARY KEY,
-                title TEXT NOT NULL,
+                movie_id INTEGER NOT NULL,
                 user_id INTEGER NOT NULL,
-                FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE -- <<< AND HERE
+                content TEXT NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (movie_id) REFERENCES public.movies(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE
             );
         `);
-    console.log("Tasks table creation query sent.");
-    console.log("PostgreSQL tables checked/created.");
+    console.log("Movie Comments table creation query sent.");
   } catch (err) {
     console.error("Error creating tables:", err);
   }
