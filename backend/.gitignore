@@ -1,25 +1,33 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-.env
+# Runtime files
+pids/
+*.pid
+*.seed
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Debugging files
+.vscode/
+.idea/
+
+# OS/system files
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+
+# PostgreSQL dump files (optional)
+*.sql
+*.dump
+
+# Build artifacts (if any)
+dist/
+build/
