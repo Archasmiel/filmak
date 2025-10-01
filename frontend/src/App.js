@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
+import HomePage from './pages/HomePage';
+import MovieDetailPage from './pages/MovieDetailPage';
 
 // Private route wrapper
 const PrivateRoute = ({ children }) => {
@@ -22,12 +24,20 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Protected Route */}
+        {/* Protected Routes */}
         <Route
           path="/"
           element={
             <PrivateRoute>
-              <h1>Welcome to the Protected Home Page!</h1>
+              <HomePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/movies/:movieId"
+          element={
+            <PrivateRoute>
+              <MovieDetailPage />
             </PrivateRoute>
           }
         />
