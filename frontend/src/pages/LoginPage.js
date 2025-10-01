@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const api = axios.create({
   baseURL: API_BASE_URL || "http://localhost:5000",
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json", // Ensure JSON content type
   },
 });
 
@@ -20,8 +20,9 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
 
+    // Basic validation
     if (!email || !password) {
       toast.error("Please enter both email and password.");
       return;
@@ -35,6 +36,7 @@ const LoginPage = () => {
 
     setLoading(true);
 
+    // Make the API request
     try {
       const res = await api.post("/auth/login", { email, password });
 

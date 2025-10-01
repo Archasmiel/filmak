@@ -3,14 +3,14 @@ const jwt = require("jsonwebtoken");
 const db = require("../db");
 
 exports.register = async ({ name, email, password }) => {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash password with salt rounds = 10
 
     try {
         const result = await db.query(
             `INSERT INTO public.users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email`,
             [name, email, hashedPassword]
         );
-        return result.rows[0];
+        return result.rows[0]; // Return the newly created user (without password)
     } catch (err) {
         throw err;
     }

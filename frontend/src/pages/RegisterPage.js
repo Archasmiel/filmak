@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const api = axios.create({
   baseURL: API_BASE_URL || "http://localhost:5000",
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json", // Ensure JSON content type
   },
 });
 
@@ -21,9 +21,9 @@ const RegisterPage = () => {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
 
-    
+    // Basic validation
     if (!name.trim() || !email.trim() || !password.trim()) {
       toast.error("Please fill in all fields.");
       return;
@@ -42,6 +42,7 @@ const RegisterPage = () => {
 
     setLoading(true);
 
+    // Make the API request
     try {
       console.log(
         `${api.defaults.baseURL}/auth/register`
