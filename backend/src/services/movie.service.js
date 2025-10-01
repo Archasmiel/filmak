@@ -4,7 +4,7 @@ import('node-fetch').then(module => {
     fetch = module.default;
 }).catch(err => {
     console.error("Failed to load node-fetch:", err);
-});
+}); // Dynamic import for node-fetch
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
@@ -16,7 +16,7 @@ exports.fetchPopularMoviesFromTmdb = async () => {
     return [];
   }
   
-  const url = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&language=uk-UA&page=1`;
+  const url = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&language=uk-UA&page=1`; // Fetch popular movies in Ukrainian
 
   try {
     const response = await fetch(url);
@@ -25,7 +25,7 @@ exports.fetchPopularMoviesFromTmdb = async () => {
     }
     const data = await response.json();
     
-    const movies = data.results.map(movie => ({
+    const movies = data.results.map(movie => ({ // Map to our DB schema
       id: movie.id,
       title: movie.title,
       poster_path: movie.poster_path ? `${POSTER_BASE_URL}${movie.poster_path}` : null,
@@ -48,7 +48,7 @@ exports.saveOrUpdateMovies = async (movies) => {
   try {
     let updateCount = 0;
     
-    for (const movie of movies) {
+    for (const movie of movies) { // Upsert each movie
       const query = `
         INSERT INTO public.movies (id, title, poster_path, overview) 
         VALUES ($1, $2, $3, $4)
@@ -61,7 +61,7 @@ exports.saveOrUpdateMovies = async (movies) => {
         WHERE public.movies.updated_at < CURRENT_TIMESTAMP - INTERVAL '1 hour';
       `;
       
-      const result = await db.query(query, [
+      const result = await db.query(query, [ // Use movie.id as primary key
         movie.id,
         movie.title,
         movie.poster_path,

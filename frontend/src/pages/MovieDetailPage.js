@@ -20,8 +20,8 @@ const MovieDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userReaction, setUserReaction] = useState(null);
-    const [newCommentContent, setNewCommentContent] = useState('');
-    const [isPosting, setIsPosting] = useState(false);
+    const [newCommentContent, setNewCommentContent] = useState(''); // For new comment input
+    const [isPosting, setIsPosting] = useState(false); // To prevent multiple submissions
     
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingContent, setEditingContent] = useState('');
