@@ -4,8 +4,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: API_BASE_URL || "http://localhost:5000",
   headers: {
     "Content-Type": "application/json",
   },
